@@ -1,10 +1,11 @@
-import {createStore,bindActionCreators} from 'redux';
+import {createStore,bindActionCreators,combineReducers} from 'redux';
 
 const ADD_TODO = 'add_todo';
 const DEL_TODO = 'delete_todo';
 const UPD_TODO = 'edit_todo'
+const ADD_USER = 'add_user'
 
-function todoReducer(state,action){
+function todoReducer(state=[],action){
     if (action.type == ADD_TODO){
         const todoText = action.payload.todoText;
         return [
@@ -30,16 +31,33 @@ function todoReducer(state,action){
     return state;
 }
 
+function userReducer(state=[],action){
+
+    if (action.type == ADD_USER){
+        const userName= action.payload.userName;
+        return [
+            ...state,
+            {name:userName,id:(state.length==0)?1:state[state.length-1].id+1}
+        ]
+    }
+    return state;
+}
+
 //action objects coverted to -> action methods (action creators)
 const addTodo = (todoText)=>({type:ADD_TODO,payload:{todoText}})
 const deleteTodo = (id)=>({type:DEL_TODO,payload:{todoId:id}})
+const addUser = (name)=>({type:ADD_USER,payload:{userName:name}})
 
 
 // const response = createStore(todoReducer,[]);
 // console.log(response);
 // console.log(response.getState());
 
-const {dispatch,subscribe,getState,replaceReducer} = createStore(todoReducer,[]);
+// const {dispatch,subscribe,getState,replaceReducer} = createStore(todoReducer,[]);
+
+const reducer = combineReducers({todo:todoReducer,user:userReducer})
+
+const {dispatch,subscribe,getState,replaceReducer} = createStore(reducer,[]);
 
 subscribe(()=>console.log(getState()))
 
@@ -60,7 +78,7 @@ subscribe(()=>console.log(getState()))
 
 // dispatch(deleteTodo(1))
 
-const actions = bindActionCreators({addTodo,deleteTodo},dispatch)
+const actions = bindActionCreators({addTodo,deleteTodo,addUser},dispatch)
 
 //ye abhi bhi call dispatch ke andar hi ho raha hai bus hamne bind kar diya h dispatch ke sath taki dispatch sabko accessible na ho 
 actions.addTodo('todo 1')
@@ -68,3 +86,5 @@ actions.addTodo('todo 1')
 actions.addTodo('todo 2')
 
 actions.deleteTodo(1)
+
+actions.addUser('sanket')
